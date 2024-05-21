@@ -30,18 +30,22 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # GLM
     find_package(glm CONFIG REQUIRED)
-    #SDL
+    #SDL2
     find_package(SDL2 CONFIG REQUIRED)
+    #SDL2IMAGE
+    find_package(SDL2_image CONFIG REQUIRED)
 
     add_executable(${PROJECT_NAME} src/main.cpp ${H_SRC} ${CPP_SRC})
 
     # GLM library
     target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm-header-only)
-    # SDL library
+    # SDL2 library
     target_link_libraries(${PROJECT_NAME}
             PRIVATE
             $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
             $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     )
+    #SDL2IMAGE
+    target_link_libraries(${PROJECT_NAME} PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 
 endif (CMAKE_SYSTEM_NAME MATCHES "Windows")

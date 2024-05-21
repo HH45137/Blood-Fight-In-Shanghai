@@ -1,13 +1,16 @@
 #if defined(linux)
+#include <iostream>
 // SDL2
 #include <SDL2/SDL.h>
-#include <iostream>
 #endif
 
 #if defined(__WIN32__)
+
+#include <iostream>
 // SDL2
 #include <SDL2/SDL.h>
-#include <iostream>
+#include <SDL2/SDL_image.h>
+
 #endif
 
 using namespace std;
@@ -18,7 +21,7 @@ SDL_Window *window = nullptr;
 void InitSDL() {
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Error: ", SDL_GetError(), 0);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Error: ", SDL_GetError(), nullptr);
         throw;
     }
 
@@ -48,8 +51,21 @@ int main(int argv, char **args) {
         bool isLoop = true;
         long long loopCount = 1;
         SDL_Event event;
+
         InitSDL();
 
+        SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        if (renderer == nullptr) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Error: ", SDL_GetError(), nullptr);
+            throw;
+        }
+
+        // Load image
+        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
+        SDL_Texture *texture = IMG_LoadTexture(renderer, "..\\assets\\background.bmp");
+
+
+        // Main loop
         while (isLoop) {
             while (SDL_PollEvent(&event)) {
                 switch (event.type) {
@@ -60,13 +76,18 @@ int main(int argv, char **args) {
                 }
             }
 
+            SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+            SDL_RenderPresent(renderer);
             DrawFrame();
             loopCount++;
         }
 
-        cout << "Loop counter value: " << loopCount << "\n";
+        SDL_DestroyTexture(texture);
+        SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
+
+        cout << "Loop counter value: " << loopCount << "\n";
 
     } catch (exception &e) {
         cout << e.what() << "\n";
